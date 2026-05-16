@@ -1,0 +1,176 @@
+local player = game.Players.LocalPlayer
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local function AddMoney(amount)
+	for _,v in pairs(player:GetDescendants()) do
+		if v:IsA("IntValue") or v:IsA("NumberValue") then
+			v.Value += amount
+			return
+		end
+	end
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Parent = player.PlayerGui
+
+local openButton = Instance.new("TextButton")
+openButton.Size = UDim2.new(0,55,0,55)
+openButton.Position = UDim2.new(0.1,0,0.2,0)
+openButton.Text = "◉"
+openButton.TextSize = 28
+openButton.BackgroundColor3 = Color3.new(0,0,0)
+openButton.TextColor3 = Color3.new(1,1,1)
+openButton.Active = true
+openButton.Draggable = true
+openButton.Visible = false
+openButton.Parent = gui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0,340,0,430)
+frame.Position = UDim2.new(0.5,-170,0.5,-215)
+frame.BackgroundColor3 = Color3.new(0,0,0)
+frame.Parent = gui
+
+for i=1,8 do
+	local line = Instance.new("Frame")
+	line.Size = UDim2.new(1,0,0,2)
+	line.Position = UDim2.new(0,0,0,i*50)
+	line.BackgroundColor3 = Color3.new(1,1,1)
+	line.BorderSizePixel = 0
+	line.Parent = frame
+end
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,25,0,25)
+close.Position = UDim2.new(1,-30,0,5)
+close.Text = "X"
+close.TextSize = 12
+close.Parent = frame
+
+close.MouseButton1Click:Connect(function()
+	frame.Visible = false
+	openButton.Visible = true
+end)
+
+openButton.MouseButton1Click:Connect(function()
+	frame.Visible = true
+	openButton.Visible = false
+end)
+
+local y = 5
+
+local function MakeTitle(txt)
+	local t = Instance.new("TextLabel")
+	t.Size = UDim2.new(1,0,0,20)
+	t.Position = UDim2.new(0,0,0,y)
+	t.Text = txt
+	t.TextSize = 13
+	t.BackgroundTransparency = 1
+	t.TextColor3 = Color3.new(1,1,1)
+	t.Parent = frame
+	y += 25
+end
+
+local function MakeToggle(txt,callback)
+
+	local text = Instance.new("TextLabel")
+	text.Size = UDim2.new(0,230,0,20)
+	text.Position = UDim2.new(0,5,0,y)
+	text.Text = txt
+	text.TextSize = 12
+	text.BackgroundTransparency = 1
+	text.TextColor3 = Color3.new(1,1,1)
+	text.Parent = frame
+
+	local button = Instance.new("TextButton")
+	button.Size = UDim2.new(0,50,0,20)
+	button.Position = UDim2.new(0,275,0,y)
+	button.Text = "OFF"
+	button.TextSize = 10
+	button.Parent = frame
+
+	local state = false
+
+	button.MouseButton1Click:Connect(function()
+		state = not state
+		button.Text = state and "ON" or "OFF"
+		callback(state)
+	end)
+
+	y += 28
+end
+
+local money,j1,esp,fly1,j2,speed,j3,fly2 =
+false,false,false,false,false,false,false,false
+
+MakeTitle("Sorcerer Tower Defense")
+MakeToggle("+100 tiền mỗi giây",function(v) money=v end)
+MakeToggle("Infinite Jump",function(v) j1=v end)
+
+MakeTitle("Sát thủ thầm lặng")
+MakeToggle("ESP Players",function(v) esp=v end)
+MakeToggle("Fly",function(v) fly1=v end)
+MakeToggle("Infinite Jump",function(v) j2=v end)
+
+MakeTitle("Sóng thần Brainrot")
+MakeToggle("+10000 Speed",function(v) speed=v end)
+MakeToggle("Jump +10000",function(v) j3=v end)
+MakeToggle("Fly",function(v) fly2=v end)
+
+UIS.JumpRequest:Connect(function()
+
+	if player.Character then
+		
+		local hum = player.Character:FindFirstChildOfClass("Humanoid")
+		
+		if j1 or j2 or j3 then
+			hum:ChangeState(Enum.HumanoidStateType.Jumping)
+		end
+	end
+end)
+
+local function ESPFunc()
+
+	for _,plr in pairs(game.Players:GetPlayers()) do
+		
+		if plr ~= player and plr.Character then
+			
+			if not plr.Character:FindFirstChild("ESP_RED") then
+				
+				local h = Instance.new("Highlight")
+				h.Name = "ESP_RED"
+				h.FillTransparency = 1
+				h.OutlineColor = Color3.new(1,0,0)
+				h.Parent = plr.Character
+			end
+		end
+	end
+end
+
+RunService.RenderStepped:Connect(function()
+
+	if not player.Character then return end
+	
+	local hum = player.Character:FindFirstChildOfClass("Humanoid")
+	local root = player.Character:FindFirstChild("HumanoidRootPart")
+
+	hum.WalkSpeed = speed and 10000 or 16
+	hum.JumpPower = j3 and 10000 or 50
+
+	if (fly1 or fly2) and root then
+		root.Velocity = Vector3.new(0,50,0)
+	end
+
+	if esp then
+		ESPFunc()
+	end
+end)
+
+while true do
+	task.wait(1)
+
+	if money then
+		AddMoney(100)
+	end
+    end
